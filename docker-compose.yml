@@ -1,0 +1,78 @@
+version: '3'
+services:
+  ############### Application containers ###############
+
+  # Hasura
+  hasuracon20_result_hasura:
+    image: hasura/graphql-engine:v1.3.2
+    ports:
+    - "81:8080"
+    depends_on:
+    - "sprint-planning-poker-db"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@sprint_planing_poker_db:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ADMIN_SECRET: sprintplanningpokerisagoodthing
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "public"
+      HASURA_GRAPHQL_JWT_SECRET: '{ "type": "RS256", "claims_namespace": "result", "key": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx7xtSpBT5qQ5klUqw/py\npzIp8F8Nkork7OFakU2pim9TzmlW8Wjr0bgw3m/vsKfYpm0BYd0OSeMpSH61cfzy\n15fmBKgjzHp04kq6C8lZWK/habGaSy297DpCWTx/BYkHwbi1z2jooVyWOLce9AFE\ndqp6R7M8RJnzqk7bmJDsQ2YJTfy5LpLlKX08ynNhTENx4ZfgCHIxaoDIu8bsrLx0\njTYQf49Y3E0Ca7c1ED/kJMepiDEJ2VXPgej3w3KAtY0owyGNEp6buNnLtwyWJhqF\n/guRwTiOwGDE8tCgs76gTWe24hl04b7MmO21MVq7q7Ga1LudsFJstyO99GmTEu4w\nUwIDAQAB\n-----END PUBLIC KEY-----\n" }'
+      GAME_SERVICE_URL: "http://sprint_planning_poker_game_service/game/first_card"
+      GAME_SERVICE_BASE_URL: "http://sprint_planning_poker_game_service"
+      HASURA_GRAPHQL_MIGRATIONS_DIR: "/migrations"
+      HASURA_GRAPHQL_METADATA_DIR: "/metadata"
+    volumes:
+      - ./metadata:/metadata
+      - ./migrations:/migrations
+    expose:
+      - 8001
+    networks:
+      sprint-planning-poker:
+        aliases:
+          - sprint_planning_poker_hasura
+
+  service_sprint_planning_actions:
+    image: service_sprint_planning_actions
+    environment:
+      BUILD_ENV: "development"
+      PRIVATE_KEY: "-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAx7xtSpBT5qQ5klUqw/pypzIp8F8Nkork7OFakU2pim9TzmlW\n8Wjr0bgw3m/vsKfYpm0BYd0OSeMpSH61cfzy15fmBKgjzHp04kq6C8lZWK/habGa\nSy297DpCWTx/BYkHwbi1z2jooVyWOLce9AFEdqp6R7M8RJnzqk7bmJDsQ2YJTfy5\nLpLlKX08ynNhTENx4ZfgCHIxaoDIu8bsrLx0jTYQf49Y3E0Ca7c1ED/kJMepiDEJ\n2VXPgej3w3KAtY0owyGNEp6buNnLtwyWJhqF/guRwTiOwGDE8tCgs76gTWe24hl0\n4b7MmO21MVq7q7Ga1LudsFJstyO99GmTEu4wUwIDAQABAoIBAQCmId1J6thOfASC\n6aIDllotJXVqwLU6UZruSNcbCtzdD5JGmqm9bIbRToIfUj2s0z9J1lsS+lo7LN4W\ntYXYRQv8NRUWhIAaQTTdUEiFKznMoaY9UoNCys4xIZg0PzRr9zljcW6QEPOF28v7\nap0tWayHg27oGnYjnWXmH2dZ9BkASPGN5j0Ce0r8Ws+37crPYrwVdSZXm0uPp/U+\nBWJgnD2WTYBajyB6Z3BhZqPhRHbT7RJNsucGK/BuTZ/mlLLMvYdTakhkXTrlJEiH\nFjVwzh+tPxES1e8zFwE7cobxQpE8JOjR9YVuabJXBpMNJuesQLJAuYqsH7hpK7hA\n7IiqeLUBAoGBAPpnksuwwJpv562Jg45/UjyHZorno/XcFZUg3k5JOWUsgk+CPn0I\nlqJzwLYBeiU1NTAfsDnvw9hrw/GxK3LWYUrwaPSZ/VmZM9/dUv1FjjBQXOolTYvo\nxXeaT8wAKYcq9uyOyz8knwUhe+DK6T5MbBluDwk5L77G3kAqzfTaSXGBAoGBAMwz\nAbectljCVs12SgDFlJ+Tt3IZy7SK6bJnwiFyyT7OzULWVGF4yHTmmIpzjHlZUuw/\nd0esIO++u20sSZykVHJo3RY096en595H+MwpIay8mVFj4IT3mM1cKuCaWMgB3v5u\ndTmV2S+AFOAeZJSXBQENzWVUhs6G1Y7I/S0cYSPTAoGAHsu2Jg7q4RN6LsGGyHOo\nLYGJfvPWGlqi3OBZ9s7SnDrJG/YssTvpKrmJrdioqQLOM8jx524xa+B1DLh5W3o6\nJPlELzDxE5/f3Vxe5H81aYO4qaNE0jwibP8xaSlr8g+6poU5Qd7DH+JqVc8euGa1\ntLrwZnX+BTx4APRCuCZQegECgYAedPEpoM811+64gI8zJEUxtAelliFjEWEgAgfb\nk1Je8tt8v5kgXLKRdR+FbwyhwOf0Ytb4srzK5YjxFKz6FyydT/TB7i6OLCYSamu6\nj9v89rhrglknnAKHhtrCW2MomdbX3kPPzgDx68mxT/cyjn/pk1Rya7Qbs9LAlEvm\n4Ze/jwKBgBOEBuOp7kPF7WyDBtpYz/tORRNelC63E6zo74hDM8zUCJyzzj/3J7+e\nw1MNzsrv9YyBlNWYVW3AHWlQezGmJGetM/P+NZ7AYUzAY0XwaEeuf9937W01Syb0\ntgXB3XIWPhMdADOiIKc+bX3eojDY+NkOgMpbif8s6QJqNWTQSIM8\n-----END RSA PRIVATE KEY-----\n"
+      HASURA_ENDPOINT: "http://sprint_planning_poker_hasura:8080/v1/graphql"
+      HASURA_SECRET: "sprintplanningpokerisagoodthing"    
+    build: 
+      context: ./game_service 
+      dockerfile: Dockerfile
+    ports:
+      - 82:80
+    volumes:
+      - ./game_service/src:/usr/src/app/src
+      - ./game_service/config:/usr/src/app/config
+    networks:
+      sprint-planning-poker:
+        aliases:
+          - sprint_planning_poker_game_service
+
+  ############### End ###############
+
+  ############### Support containers ###############
+
+  # Hasura database
+  sprint-planning-poker-db:
+    image: postgres:11.5
+    restart: always
+    volumes:
+    - ./db_data:/var/lib/postgresql/data
+    ports:
+    - 5432:5432
+    networks:
+      sprint-planning-poker:
+        aliases:
+          - sprint_planing_poker_db
+    command: postgres -c max_locks_per_transaction=2000
+                  
+  ############### End ###############
+
+networks:
+  sprint-planning-poker:
+    external:
+      name: sprint-planning-poker

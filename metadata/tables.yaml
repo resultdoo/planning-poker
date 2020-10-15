@@ -1,0 +1,199 @@
+- table:
+    schema: public
+    name: rooms
+  array_relationships:
+  - name: cards
+    using:
+      foreign_key_constraint_on:
+        column: room_id
+        table:
+          schema: public
+          name: scrum_cards
+  - name: users
+    using:
+      foreign_key_constraint_on:
+        column: room_id
+        table:
+          schema: public
+          name: users
+  select_permissions:
+  - role: owner
+    permission:
+      columns:
+      - id
+      - room_code
+      - created_at
+      - updated_at
+      filter:
+        room_code:
+          _eq: X-Hasura-Room
+  - role: player
+    permission:
+      columns:
+      - id
+      - room_code
+      - created_at
+      - updated_at
+      filter:
+        room_code:
+          _eq: X-Hasura-Room
+- table:
+    schema: public
+    name: scrum_cards
+  object_relationships:
+  - name: room
+    using:
+      foreign_key_constraint_on: room_id
+  - name: user
+    using:
+      foreign_key_constraint_on: user_id
+  insert_permissions:
+  - role: owner
+    permission:
+      check:
+        _and:
+        - room:
+            room_code:
+              _eq: X-Hasura-Room
+        - user_id:
+            _eq: X-Hasura-User-Id
+      columns:
+      - show
+      - card_value
+      - id
+      - room_id
+      - user_id
+      - created_at
+      backend_only: false
+  - role: player
+    permission:
+      check:
+        _and:
+        - room:
+            room_code:
+              _eq: X-Hasura-Room
+        - user_id:
+            _eq: X-Hasura-User-Id
+      columns:
+      - id
+      - created_at
+      - card_value
+      - user_id
+      - room_id
+      - show
+      backend_only: false
+  select_permissions:
+  - role: owner
+    permission:
+      columns:
+      - show
+      - card_value
+      - id
+      - room_id
+      - user_id
+      - created_at
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+  - role: player
+    permission:
+      columns:
+      - show
+      - card_value
+      - id
+      - room_id
+      - user_id
+      - created_at
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+  update_permissions:
+  - role: owner
+    permission:
+      columns:
+      - show
+      - card_value
+      - id
+      - room_id
+      - user_id
+      - created_at
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+      check: null
+  - role: player
+    permission:
+      columns:
+      - show
+      - card_value
+      - id
+      - room_id
+      - user_id
+      - created_at
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+      check: null
+- table:
+    schema: public
+    name: users
+  object_relationships:
+  - name: card
+    using:
+      manual_configuration:
+        remote_table:
+          schema: public
+          name: scrum_cards
+        column_mapping:
+          id: user_id
+  - name: room
+    using:
+      foreign_key_constraint_on: room_id
+  select_permissions:
+  - role: owner
+    permission:
+      columns:
+      - id
+      - full_name
+      - room_id
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+  - role: player
+    permission:
+      columns:
+      - id
+      - room_id
+      - full_name
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+  delete_permissions:
+  - role: owner
+    permission:
+      filter:
+        room:
+          room_code:
+            _eq: X-Hasura-Room
+  - role: player
+    permission:
+      filter:
+        id:
+          _eq: X-Hasura-User-Id
+  event_triggers:
+  - name: insert_user_in_game
+    definition:
+      enable_manual: false
+      insert:
+        columns: '*'
+    retry_conf:
+      num_retries: 0
+      interval_sec: 10
+      timeout_sec: 60
+    webhook_from_env: GAME_SERVICE_URL

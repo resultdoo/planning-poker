@@ -1,0 +1,43 @@
+actions:
+- name: create_room
+  definition:
+    kind: synchronous
+    handler: '{{GAME_SERVICE_BASE_URL}}/game/create'
+    forward_client_headers: true
+  permissions:
+  - role: public
+- name: end_round
+  definition:
+    kind: synchronous
+    handler: '{{GAME_SERVICE_BASE_URL}}/game/end_round'
+    forward_client_headers: true
+  permissions:
+  - role: owner
+- name: join_room
+  definition:
+    kind: synchronous
+    handler: '{{GAME_SERVICE_BASE_URL}}/game/join'
+    forward_client_headers: true
+  permissions:
+  - role: owner
+  - role: public
+- name: toggle_cards
+  definition:
+    kind: synchronous
+    handler: '{{GAME_SERVICE_BASE_URL}}/game/togglecards'
+    forward_client_headers: true
+  permissions:
+  - role: owner
+custom_types:
+  enums: []
+  input_objects:
+  - name: EndRoundInput
+  - name: ToggleCardsInput
+  - name: CreateRoomInput
+  - name: JoinRoomInput
+  objects:
+  - name: RoundEnd
+  - name: ToggleCards
+  - name: SprintPlanningGameAdmin
+  - name: SprintPlanningGame
+  scalars: []

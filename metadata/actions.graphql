@@ -1,0 +1,70 @@
+type Mutation {
+  create_room (
+    input: CreateRoomInput
+  ): SprintPlanningGameAdmin
+}
+
+
+type Mutation {
+  end_round (
+    input: EndRoundInput!
+  ): RoundEnd
+}
+
+
+type Mutation {
+  join_room (
+    input: JoinRoomInput
+  ): SprintPlanningGame
+}
+
+
+type Mutation {
+  toggle_cards (
+    input: ToggleCardsInput!
+  ): ToggleCards
+}
+
+
+
+
+input EndRoundInput {
+  roomCode : String!
+}
+
+input ToggleCardsInput {
+  roomCode : String!
+  show : Boolean!
+}
+
+input CreateRoomInput {
+  fullName : String!
+}
+
+input JoinRoomInput {
+  roomCode : String!
+  fullName : String!
+}
+
+type RoundEnd {
+  success : Boolean
+}
+
+type ToggleCards {
+  success : Boolean
+}
+
+type SprintPlanningGameAdmin {
+  token : String
+  userId : String
+  roomId : String
+  roomCode : String
+}
+
+type SprintPlanningGame {
+  token : String
+  userId : String
+  roomId : String
+  roomCode : String
+}
+

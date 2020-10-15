@@ -1,0 +1,11 @@
+- name: clear_games
+  webhook: '{{GAME_SERVICE_BASE_URL}}/cron/clear'
+  schedule: 0 */8 * * *
+  include_in_metadata: true
+  payload: {}
+  retry_conf:
+    num_retries: 5
+    timeout_seconds: 60
+    tolerance_seconds: 21600
+    retry_interval_seconds: 10
+  comment: Clears old games.

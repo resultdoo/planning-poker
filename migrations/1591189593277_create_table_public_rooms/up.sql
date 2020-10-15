@@ -1,0 +1,1 @@
+CREATE TABLE "public"."rooms"("id" bigserial NOT NULL, "room_code" varchar NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now(), "updated_at" timestamptz NOT NULL DEFAULT now(), PRIMARY KEY ("id") , UNIQUE ("room_code")); COMMENT ON TABLE "public"."rooms" IS E'Rooms for sprint planning.';

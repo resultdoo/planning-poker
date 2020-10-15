@@ -1,0 +1,6 @@
+[submodule "game_service"]
+	path = game_service
+	url = git@github.com:resultdoo/planning-poker-game-service.git
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:resultdoo/planning-poker-frontend.git
